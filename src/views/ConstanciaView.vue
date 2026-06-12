@@ -130,16 +130,13 @@ const irAlInicio = () => {
   router.push('/')
 }
 
-// Carga los datos de la API de manera inteligente
 const cargarDatos = async (cui) => {
   if (!cui) return
   loading.value = true
   error.value = null
   try {
-    // Si existe la variable de Vercel la usa; si estás en local, usa el proxy /api
-    const urlBase = import.meta.env.VITE_API_URL || '/api'
-    
-    const response = await axios.get(`${urlBase}/restful/enrollment-certificate/?cui=${cui}`)
+    // Al usar '/api' a secas, tu computadora local y Vercel sabrán exactamente qué puente usar
+    const response = await axios.get(`/api/restful/enrollment-certificate/?cui=${cui}`)
     
     if (response.data.results && response.data.results.length > 0) {
       matriculas.value = response.data.results
