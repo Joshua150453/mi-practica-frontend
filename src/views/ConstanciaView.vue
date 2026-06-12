@@ -136,12 +136,8 @@ const cargarDatos = async (cui) => {
   loading.value = true
   error.value = null
   try {
-    // Si estás en localhost usa el proxy /api, de lo contrario llama directo al servidor web
-    const urlBase = window.location.hostname === 'localhost' 
-      ? '/api' 
-      : 'https://sisacad-enrollments-backend.vercel.app'
-
-    const response = await axios.get(`${urlBase}/restful/enrollment-certificate/?cui=${cui}`)
+    // Usamos simplemente '/api'. Vite lo resolverá en local y vercel.json lo resolverá en la nube.
+    const response = await axios.get(`/api/restful/enrollment-certificate/?cui=${cui}`)
     
     if (response.data.results && response.data.results.length > 0) {
       matriculas.value = response.data.results
@@ -150,7 +146,6 @@ const cargarDatos = async (cui) => {
       error.value = "No se encontraron registros para el CUI especificado."
     }
   } catch (err) {
-    // Si la API responde con un 404 es porque ese CUI de alumno no existe en la base de datos
     if (err.response && err.response.status === 404) {
       error.value = "El CUI ingresado no está registrado en el sistema."
     } else {
