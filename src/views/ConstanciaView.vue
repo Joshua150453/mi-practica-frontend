@@ -135,8 +135,12 @@ const cargarDatos = async (cui) => {
   loading.value = true
   error.value = null
   try {
-    // Al usar '/api' a secas, tu computadora local y Vercel sabrán exactamente qué puente usar
-    const response = await axios.get(`/api/restful/enrollment-certificate/?cui=${cui}`)
+    // Si estás en tu PC (localhost) usa el proxy '/api'. Si estás en internet, usa la URL directa del backend.
+    const urlBase = window.location.hostname === 'localhost'
+      ? '/api'
+      : 'https://sisacad-enrollments-backend.vercel.app'
+
+    const response = await axios.get(`${urlBase}/restful/enrollment-certificate/?cui=${cui}`)
     
     if (response.data.results && response.data.results.length > 0) {
       matriculas.value = response.data.results
