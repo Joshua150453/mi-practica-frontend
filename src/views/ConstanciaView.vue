@@ -136,7 +136,7 @@ const cargarDatos = async (cui) => {
   loading.value = true
   error.value = null
   try {
-    // Usamos simplemente '/api'. Vite lo resolverá en local y vercel.json lo resolverá en la nube.
+    // Al usar '/api' a secas, funcionará perfecto en local y en la nube
     const response = await axios.get(`/api/restful/enrollment-certificate/?cui=${cui}`)
     
     if (response.data.results && response.data.results.length > 0) {
