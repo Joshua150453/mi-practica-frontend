@@ -136,8 +136,10 @@ const cargarDatos = async (cui) => {
   loading.value = true
   error.value = null
   try {
-    // Al usar '/api' a secas, funcionará perfecto en local y en la nube
-    const response = await axios.get(`/api/restful/enrollment-certificate/?cui=${cui}`)
+    // Si existe la variable de Vercel la usa; si estás en local, usa el proxy /api
+    const urlBase = import.meta.env.VITE_API_URL || '/api'
+    
+    const response = await axios.get(`${urlBase}/restful/enrollment-certificate/?cui=${cui}`)
     
     if (response.data.results && response.data.results.length > 0) {
       matriculas.value = response.data.results
