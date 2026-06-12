@@ -114,7 +114,7 @@ const estudiante = ref({})
 const loading = ref(true)
 const error = ref(null)
 
-// Función para redirigir a la ruta con el CUI ingresado
+// Redirige a la ruta con el parámetro CUI
 const buscarConstancia = () => {
   if (!cuiInput.value.trim()) {
     validationError.value = "Por favor, digite un número válido."
@@ -124,17 +124,25 @@ const buscarConstancia = () => {
   router.push(`/constancia/${cuiInput.value.trim()}`)
 }
 
+// Te regresa al buscador principal
 const irAlInicio = () => {
+  cuiInput.value = ''
   router.push('/')
 }
 
-// Lógica de carga de datos desde la API Proxy
+// Carga los datos de la API de manera inteligente
 const cargarDatos = async (cui) => {
   if (!cui) return
   loading.value = true
   error.value = null
   try {
-    const response = await axios.get(`/api/restful/enrollment-certificate/?cui=${cui}`)
+    // Si estás en localhost usa el proxy /api, de lo contrario llama directo al servidor web
+    const urlBase = window.location.hostname === 'localhost' 
+      ? '/api' 
+      : 'https://sisacad-enrollments-backend.vercel.app'
+
+    const response = await axios.get(`${urlBase}/restful/enrollment-certificate/?cui=${cui}`)
+    
     if (response.data.results && response.data.results.length > 0) {
       matriculas.value = response.data.results
       estudiante.value = response.data.results[0].student
@@ -142,13 +150,18 @@ const cargarDatos = async (cui) => {
       error.value = "No se encontraron registros para el CUI especificado."
     }
   } catch (err) {
-    error.value = "Error al conectar con el servidor backend."
+    // Si la API responde con un 404 es porque ese CUI de alumno no existe en la base de datos
+    if (err.response && err.response.status === 404) {
+      error.value = "El CUI ingresado no está registrado en el sistema."
+    } else {
+      error.value = "Error al conectar con el servidor backend o problemas de red."
+    }
   } finally {
     loading.value = false
   }
 }
 
-// Escucha cambios en la URL por si el usuario cambia de CUI o regresa al inicio
+// Escucha los cambios de ruta para reaccionar inmediatamente
 onMounted(() => cargarDatos(route.params.cui))
 watch(() => route.params.cui, (nuevoCui) => cargarDatos(nuevoCui))
 </script>
